@@ -1,0 +1,48 @@
+.DS_Store
+node_modules
+/dist
+
+context
+
+# local env files
+.env
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vue specific
+*.local
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+
+# Testing
+/coverage
+/cypress/videos/
+/cypress/screenshots/
+
+# Build output
+*.tsbuildinfo
+next-env.d.ts
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+*/*copy.vue
