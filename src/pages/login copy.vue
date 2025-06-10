@@ -1,3 +1,4 @@
+src/pages/login.vue
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useAuth } from "@/composables/useAuth";
@@ -44,11 +45,6 @@ const handleGoogleSignIn = async () => {
 };
 
 const handleEmailAuth = async () => {
-  if (!email.value || !password.value) {
-    console.error("Email and password are required");
-    return;
-  }
-
   isLoading.value = true;
   try {
     if (isRegistering.value) {
@@ -61,8 +57,6 @@ const handleEmailAuth = async () => {
           "Registration successful! Please check your email to confirm your account."
         );
         isRegistering.value = false; // Switch back to login form
-        email.value = "";
-        password.value = "";
       }
     } else {
       await signInWithEmail(email.value, password.value);
@@ -72,14 +66,6 @@ const handleEmailAuth = async () => {
     // authError will contain the specific error message
   } finally {
     isLoading.value = false;
-  }
-};
-
-const clearError = () => {
-  // Clear the error in the composable if it has a method for it
-  // Otherwise, you might need to expose an error clearing method from useAuth
-  if (authError.value) {
-    authError.value = null;
   }
 };
 </script>
@@ -98,9 +84,9 @@ const clearError = () => {
           variant="tonal"
           class="mb-4"
           closable
-          @click:close="clearError"
+          @click:close="authError = null"
         >
-          {{ authError.message || authError }}
+          {{ authError.message }}
         </v-alert>
 
         <v-card-text>
@@ -119,7 +105,7 @@ const clearError = () => {
             <v-text-field
               v-model="password"
               label="Password"
-              prepend-inner-icon="mdi-lock"
+              prepend-inner-icon="mdi-lockl"
               :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
               variant="outlined"
               :type="showPassword ? 'text' : 'password'"
@@ -130,7 +116,6 @@ const clearError = () => {
             />
 
             <v-btn
-              type="submit"
               color="background"
               class="w-100 text-on-background"
               :loading="isLoading"
@@ -140,6 +125,7 @@ const clearError = () => {
             >
               {{ isRegistering ? "Register" : "Login" }}
             </v-btn>
+            <v-divider></v-divider>
 
             <v-divider class="my-4"></v-divider>
 

@@ -39,7 +39,7 @@ A dynamic and interactive weather application built with Vue 3, Vuetify 3, TypeS
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your-repo-url>
+    git clone https://github.com/Chukwuemekamusic/vue-weather-app
     cd vue-weather-app
     ```
 
@@ -52,23 +52,39 @@ A dynamic and interactive weather application built with Vue 3, Vuetify 3, TypeS
     ```
 
 3.  **Supabase Setup:**
-    <!-- * Create a new Supabase project.
-    * Go to `Authentication > Settings` and enable **Google** as an OAuth provider.
-    * Add your app's redirect URLs (e.g., `http://localhost:5173/` and `http://localhost:5173/dashboard`) in your Supabase project's `Authentication > URL Configuration`.
-    * Set up your database schema by running the SQL commands provided in the `SCHEMA.sql` (or similar) file:
-        * Drop existing `user_saved_cities` and `cities` tables if they exist.
-        * Create `public.cities` table with `id SERIAL PRIMARY KEY`.
-        * Create `public.user_saved_cities` junction table.
-        * Enable Row Level Security (RLS) and set up policies for `public.cities` and `public.user_saved_cities` (read access for all on `cities`, user-specific read/write on `user_saved_cities`).
-        * Insert initial city data into `public.cities` (e.g., London, Lagos, etc.).
-        * Ensure the `profiles` table exists and has the `preferred_units` column (if you decide to implement it later).
-    * Create a `.env` file in the root of your project and add your Supabase project URL and Anon Key:
-        ```env
-        VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
-        VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-        ``` -->
 
-4.  **Run the development server:**
+    - Create a new Supabase project.
+    - Go to `Authentication > Settings` and enable **Google** as an OAuth provider.
+    - Add your app's redirect URLs (e.g., `http://localhost:3000/`) in your Supabase project's `Authentication > URL Configuration`.
+    - Set up your database schema by running the SQL commands provided in the `SCHEMA.sql`
+    - Create a `.env` file in the root of your project and add your Supabase project URL and Anon Key:
+      ```env
+      VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
+      VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+      ```
+
+4.  **Running with Docker Compose (Recommended for Local Development/Testing):**
+
+    - Ensure you have Docker Desktop (or Docker Engine) installed and running.
+    - From the project root, build and run the application:
+      ```bash
+      docker compose up --build
+      ```
+      This command will:
+      - Build the Docker image for the frontend service.
+      - Start the frontend container.
+      - Map container port 80 to host port 3000.
+    - For subsequent runs (after the initial build), you can just use:
+      ```bash
+      docker compose up
+      ```
+    - To stop the containers:
+      `bash
+    docker compose down
+    `
+      The app will be accessible in your browser at `http://localhost:3000`.
+
+5.  **Run the development server:**
 
     ```bash
     npm run dev

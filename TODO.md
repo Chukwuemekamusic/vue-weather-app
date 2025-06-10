@@ -1,1 +1,2 @@
 - SIGN OUT should route the user back to the login
+- Recheck details page

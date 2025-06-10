@@ -152,7 +152,8 @@ const getDailyCondition = (weatherCode: number, isDay: number) => {
       class="pa-8 elevation-12 rounded-xl text-white mx-auto detail-card"
       :style="cardBackground"
     >
-      <div class="d-flex align-center justify-space-between mb-4">
+      <!-- d-flex flex-column flex-sm-row align-center justify-space-between mb-4 text-center text-sm-left -->
+      <div class="d-flex align-center align-center justify-space-between mb-4">
         <div class="text-left">
           <h2 class="text-h4 font-weight-bold">
             {{ cityDetail.name }}
@@ -175,7 +176,7 @@ const getDailyCondition = (weatherCode: number, isDay: number) => {
       <v-divider class="my-4 border-white border-opacity-30"></v-divider>
 
       <v-row class="mb-4">
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="6" sm="3">
           <div class="d-flex flex-column align-center">
             <v-icon color="white" size="24" class="mb-1"
               >mdi-thermometer</v-icon
@@ -188,7 +189,7 @@ const getDailyCondition = (weatherCode: number, isDay: number) => {
             >
           </div>
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="6" sm="3">
           <div class="d-flex flex-column align-center">
             <v-icon color="white" size="24" class="mb-1"
               >mdi-water-percent</v-icon
@@ -199,7 +200,7 @@ const getDailyCondition = (weatherCode: number, isDay: number) => {
             >
           </div>
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="6" sm="3">
           <div class="d-flex flex-column align-center">
             <v-icon color="white" size="24" class="mb-1"
               >mdi-weather-windy</v-icon
@@ -212,7 +213,7 @@ const getDailyCondition = (weatherCode: number, isDay: number) => {
             >
           </div>
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="6" sm="3">
           <div class="d-flex flex-column align-center">
             <v-icon color="white" size="24" class="mb-1"
               >mdi-weather-pouring</v-icon
