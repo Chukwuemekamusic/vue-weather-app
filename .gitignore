@@ -46,3 +46,6 @@ next-env.d.ts
 *.tmp
 *.temp
 */*copy.vue
+
+# Config files to ignore
+.browserslistrc

@@ -8,18 +8,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    2: typeof import('./components/WeatherCard2.vue')['default']
-    copy: typeof import('./components/WeatherIcon copy.vue')['default']
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
-    LoginComponent: typeof import('./pages/login.vue')['default']
     Navbar: typeof import('./components/Navbar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBar: typeof import('./components/SearchBar.vue')['default']
-    'SearchBar copy': typeof import('./components/SearchBar copy.vue')['default']
     WeatherCard: typeof import('./components/WeatherCard.vue')['default']
     'WeatherCard copy': typeof import('./components/WeatherCard copy.vue')['default']
-    WeatherCard2: typeof import('./components/WeatherCard2.vue')['default']
     WeatherForm: typeof import('./components/WeatherForm.vue')['default']
     WeatherIcon: typeof import('./components/WeatherIcon.vue')['default']
     'WeatherIcon copy': typeof import('./components/WeatherIcon copy.vue')['default']
