@@ -1,19 +1,19 @@
 <!-- src/components/WeatherIcon.vue -->
 <script setup lang="ts">
-import { computed } from "vue";
+  import { computed } from 'vue'
 
-interface Props {
-  icon: string;
-  size?: number | string;
-  color?: string;
-}
+  interface Props {
+    icon: string
+    size?: number | string
+    color?: string
+  }
 
-const props = withDefaults(defineProps<Props>(), {
-  size: 24,
-  color: "white",
-});
+  const props = withDefaults(defineProps<Props>(), {
+    size: 24,
+    color: 'white',
+  })
 
-const iconColor = computed(() => props.color);
+  const iconColor = computed(() => props.color)
 </script>
 
 <template>

@@ -1,120 +1,120 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
-import {
-  WeatherService,
-  type City,
-  type CityCoordinates,
-} from "@/services/weatherService";
-import { useAuth } from "@/composables/useAuth";
-import SearchBar from "@/components/SearchBar.vue";
-import WeatherCard from "@/components/WeatherCard.vue";
+  import { computed, ref, watch } from 'vue'
+  import SearchBar from '@/components/SearchBar.vue'
+  import WeatherCard from '@/components/WeatherCard.vue'
+  import { useAuth } from '@/composables/useAuth'
+  import {
+    type City,
+    type CityCoordinates,
+    WeatherService,
+  } from '@/services/weatherService'
 
-const weatherService = new WeatherService();
-const { user, loading: authLoading } = useAuth();
+  const weatherService = new WeatherService()
+  const { user, loading: authLoading } = useAuth()
 
-const cities = ref<City[]>([]);
-const weatherLoading = ref(false);
-const error = ref<string | null>(null); // Global error for weather fetching or city operations
+  const cities = ref<City[]>([])
+  const weatherLoading = ref(false)
+  const error = ref<string | null>(null) // Global error for weather fetching or city operations
 
-// Function to load weather data for the current user's saved cities
-const loadWeatherData = async (userId: string) => {
-  weatherLoading.value = true;
-  error.value = null; // Clear general errors
+  // Function to load weather data for the current user's saved cities
+  const loadWeatherData = async (userId: string) => {
+    weatherLoading.value = true
+    error.value = null // Clear general errors
 
-  try {
-    const fetchedCities = await weatherService.getSavedCitiesWeather(userId);
-    cities.value = fetchedCities;
-  } catch (err: any) {
-    console.error("Failed to load user's weather data:", err);
-    error.value = err.message || "Failed to load weather data.";
-    cities.value = []; // Clear list if there's a global error fetching all
-  } finally {
-    weatherLoading.value = false;
-  }
-};
-
-// Watch for user changes and load weather data
-watch(
-  user,
-  async (newUser) => {
-    if (newUser) {
-      await loadWeatherData(newUser.id);
-    } else {
-      cities.value = []; // Clear cities if user logs out
+    try {
+      const fetchedCities = await weatherService.getSavedCitiesWeather(userId)
+      cities.value = fetchedCities
+    } catch (error_: any) {
+      console.error('Failed to load user\'s weather data:', error_)
+      error.value = error_.message || 'Failed to load weather data.'
+      cities.value = [] // Clear list if there's a global error fetching all
+    } finally {
+      weatherLoading.value = false
     }
-  },
-  { immediate: true }
-);
-
-// Handle city added from SearchBar
-const handleCityAdded = async (newCityCoords: CityCoordinates) => {
-  if (!user.value) return;
-
-  const isAlreadyOptimisticallyAdded = cities.value.some(
-    (c: City) => c.id === newCityCoords.id && c.loading
-  );
-  if (!isAlreadyOptimisticallyAdded) {
-    cities.value.unshift({
-      id: newCityCoords.id,
-      name: newCityCoords.name,
-      country: newCityCoords.country,
-      temperature: 0,
-      condition: "Adding...",
-      humidity: 0,
-      windSpeed: 0,
-      feelsLike: 0,
-      icon: "mdi-cloud-sync-outline",
-      weatherType: "default",
-      loading: true,
-      error: null,
-    });
   }
 
-  // Then trigger a full reload to get the fresh data and remove loading state
-  await loadWeatherData(user.value.id);
-};
+  // Watch for user changes and load weather data
+  watch(
+    user,
+    async newUser => {
+      if (newUser) {
+        await loadWeatherData(newUser.id)
+      } else {
+        cities.value = [] // Clear cities if user logs out
+      }
+    },
+    { immediate: true },
+  )
 
-// Handle error emitted from SearchBar
-const handleSearchBarError = (message: string) => {
-  error.value = message;
-};
+  // Handle city added from SearchBar
+  const handleCityAdded = async (newCityCoords: CityCoordinates) => {
+    if (!user.value) return
 
-// Remove city from display and database
-const removeCity = async (cityId: number) => {
-  if (!user.value) {
-    alert("Please log in to remove cities.");
-    return;
+    const isAlreadyOptimisticallyAdded = cities.value.some(
+      (c: City) => c.id === newCityCoords.id && c.loading,
+    )
+    if (!isAlreadyOptimisticallyAdded) {
+      cities.value.unshift({
+        id: newCityCoords.id,
+        name: newCityCoords.name,
+        country: newCityCoords.country,
+        temperature: 0,
+        condition: 'Adding...',
+        humidity: 0,
+        windSpeed: 0,
+        feelsLike: 0,
+        icon: 'mdi-cloud-sync-outline',
+        weatherType: 'default',
+        loading: true,
+        error: null,
+      })
+    }
+
+    // Then trigger a full reload to get the fresh data and remove loading state
+    await loadWeatherData(user.value.id)
   }
 
-  // Optimistic UI update:
-  const originalCities = [...cities.value];
-  cities.value = cities.value.filter((city: City) => city.id !== cityId);
+  // Handle error emitted from SearchBar
+  const handleSearchBarError = (message: string) => {
+    error.value = message
+  }
 
-  try {
-    await weatherService.removeSavedCity(user.value.id, cityId);
+  // Remove city from display and database
+  const removeCity = async (cityId: number) => {
+    if (!user.value) {
+      alert('Please log in to remove cities.')
+      return
+    }
+
+    // Optimistic UI update:
+    const originalCities = [...cities.value]
+    cities.value = cities.value.filter((city: City) => city.id !== cityId)
+
+    try {
+      await weatherService.removeSavedCity(user.value.id, cityId)
     // If successful, no need to reload all cities
-  } catch (err: any) {
-    console.error("Failed to remove city:", err);
-    error.value = err.message || "Failed to remove city.";
-    // Revert if API call fails
-    cities.value = originalCities;
+    } catch (error_: any) {
+      console.error('Failed to remove city:', error_)
+      error.value = error_.message || 'Failed to remove city.'
+      // Revert if API call fails
+      cities.value = originalCities
+    }
   }
-};
 
-// Refresh weather data (for currently saved cities)
-const refreshWeather = async () => {
-  if (user.value) {
-    await loadWeatherData(user.value.id);
-  } else {
-    // This case should be covered by the "Not Authenticated" block
-    alert("Please log in to refresh weather data.");
+  // Refresh weather data (for currently saved cities)
+  const refreshWeather = async () => {
+    if (user.value) {
+      await loadWeatherData(user.value.id)
+    } else {
+      // This case should be covered by the "Not Authenticated" block
+      alert('Please log in to refresh weather data.')
+    }
   }
-};
 
-// Determine overall loading state (auth or weather data)
-const overallLoading = computed(
-  () => authLoading.value || weatherLoading.value
-);
+  // Determine overall loading state (auth or weather data)
+  const overallLoading = computed(
+    () => authLoading.value || weatherLoading.value,
+  )
 </script>
 
 <template>
@@ -134,23 +134,23 @@ const overallLoading = computed(
     <v-row v-if="error">
       <v-col cols="12">
         <v-alert
-          type="error"
-          variant="tonal"
-          :text="error"
           class="mb-4"
           closable
+          :text="error"
+          type="error"
+          variant="tonal"
           @click:close="error = null"
         />
       </v-col>
     </v-row>
 
     <v-row v-if="overallLoading">
-      <v-col cols="12" class="text-center">
+      <v-col class="text-center" cols="12">
         <v-progress-circular
-          indeterminate
-          color="primary"
-          size="64"
           class="mb-4"
+          color="primary"
+          indeterminate
+          size="64"
         />
         <p class="text-h6 text-on-background">Loading weather data...</p>
       </v-col>
@@ -161,10 +161,10 @@ const overallLoading = computed(
         Please log in to see your saved cities and manage them.
       </p>
       <v-btn
-        @click="$router.push('/login')"
+        class="mt-4"
         color="primary"
         variant="elevated"
-        class="mt-4"
+        @click="$router.push('/login')"
       >
         Go to Login
       </v-btn>
@@ -178,12 +178,11 @@ const overallLoading = computed(
         No cities added yet. Use the search bar to find and add your first city!
       </p>
       <v-btn
-        @click="refreshWeather"
+        class="mt-4"
         color="primary"
         variant="elevated"
-        class="mt-4"
-        >Refresh</v-btn
-      >
+        @click="refreshWeather"
+      >Refresh</v-btn>
     </div>
 
     <div v-else class="d-flex flex-wrap">
@@ -192,9 +191,9 @@ const overallLoading = computed(
           v-for="city in cities"
           :key="city.id"
           cols="12"
-          sm="6"
-          md="4"
           lg="3"
+          md="4"
+          sm="6"
         >
           <WeatherCard
             :city="city"

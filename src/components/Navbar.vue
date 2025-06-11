@@ -1,62 +1,62 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { useTheme } from "vuetify";
-import type { User } from "@supabase/supabase-js";
-import { useAuth } from "@/composables/useAuth";
+  import type { User } from '@supabase/supabase-js'
+  import { computed } from 'vue'
+  import { useTheme } from 'vuetify'
+  import { useAuth } from '@/composables/useAuth'
 
-interface NavbarProps {
-  user: User | null;
-  loading: boolean;
-}
-
-const props = defineProps<NavbarProps>();
-
-const emit = defineEmits<{
-  (e: "toggle-theme"): void;
-}>();
-
-const theme = useTheme();
-const currentTheme = computed(() =>
-  theme.global.current.value.dark ? "Weather App Theme" : "Light"
-);
-
-const toggleTheme = () => {
-  emit("toggle-theme");
-};
-
-const { signInWithGoogle, signOut } = useAuth();
-
-const handleSignIn = async () => {
-  try {
-    await signInWithGoogle();
-  } catch (error) {
-    // TODO: HANDLE ERROR
-    console.error("login failed", error);
+  interface NavbarProps {
+    user: User | null
+    loading: boolean
   }
-};
 
-const handleSignOut = async () => {
-  try {
-    await signOut();
-  } catch (error) {
-    // Handle error
-    console.error("Logout failed:", error);
+  defineProps<NavbarProps>()
+
+  const emit = defineEmits<{
+    (e: 'toggle-theme'): void
+  }>()
+
+  const theme = useTheme()
+  const currentTheme = computed(() =>
+    theme.global.current.value.dark ? 'Weather App Theme' : 'Light',
+  )
+
+  const toggleTheme = () => {
+    emit('toggle-theme')
   }
-};
+
+  const { signInWithGoogle, signOut } = useAuth()
+
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      // TODO: HANDLE ERROR
+      console.error('login failed', error)
+    }
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      // Handle error
+      console.error('Logout failed:', error)
+    }
+  }
 </script>
 
 <template>
   <v-app-bar app color="surface" dark>
     <v-app-bar-title class="font-weight-bold">Weather App</v-app-bar-title>
-    <v-spacer></v-spacer>
+    <v-spacer />
 
     <v-btn
-      icon
-      @click="toggleTheme"
       class="mr-2"
+      icon
       :title="`Switch to ${
         currentTheme === 'Light' ? 'Weather App Theme' : 'Light'
       } theme`"
+      @click="toggleTheme"
     >
       <v-icon>
         {{
@@ -67,20 +67,20 @@ const handleSignOut = async () => {
 
     <template v-if="loading">
       <v-progress-circular
+        color="on-surface"
         indeterminate
         size="24"
         width="2"
-        color="on-surface"
       />
     </template>
     <template v-else>
       <v-menu v-if="user">
-        <template v-slot:activator="{ props: menuProps }">
+        <template #activator="{ props: menuProps }">
           <v-btn
             v-bind="menuProps"
             color="on-surface"
-            variant="flat"
             prepend-icon="mdi-account-circle"
+            variant="flat"
           >
             {{ user.email || user.user_metadata?.full_name || "User" }}
           </v-btn>
@@ -94,9 +94,9 @@ const handleSignOut = async () => {
       <v-btn
         v-else
         color="on-surface"
+        prepend-icon="mdi-google"
         variant="elevated"
         @click="handleSignIn"
-        prepend-icon="mdi-google"
       >
         Sign In with Google
       </v-btn>

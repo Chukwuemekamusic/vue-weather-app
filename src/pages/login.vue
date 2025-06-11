@@ -1,85 +1,79 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useAuth } from "@/composables/useAuth";
-import { useRouter } from "vue-router";
+  import { ref, watch } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useAuth } from '@/composables/useAuth'
 
-const router = useRouter();
-const {
-  signInWithGoogle,
-  signInWithEmail,
-  signUpWithEmail,
-  user,
-  loading,
-  authError,
-} = useAuth();
+  const router = useRouter()
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, user, authError }
+    = useAuth()
 
-const email = ref("");
-const password = ref("");
-const isRegistering = ref(false);
-const showPassword = ref(false);
+  const email = ref('')
+  const password = ref('')
+  const isRegistering = ref(false)
+  const showPassword = ref(false)
 
-const isLoading = ref(false);
+  const isLoading = ref(false)
 
-// watch for changes in global auth user to redirect
-watch(
-  user,
-  (newUser) => {
-    if (newUser) {
-      router.push("/");
-    }
-  },
-  { immediate: true }
-);
-
-const handleGoogleSignIn = async () => {
-  isLoading.value = true;
-  try {
-    await signInWithGoogle();
-  } catch (err) {
-    // Error is already handled and stored in authError by useAuth composable
-    console.error("Google sign-in failed from component:", err);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const handleEmailAuth = async () => {
-  if (!email.value || !password.value) {
-    console.error("Email and password are required");
-    return;
-  }
-
-  isLoading.value = true;
-  try {
-    if (isRegistering.value) {
-      await signUpWithEmail(email.value, password.value);
-      if (!authError.value) {
-        // If no error, assume success or confirmation email sent
-        alert(
-          "Registration successful! Please check your email to confirm your account."
-        );
-        isRegistering.value = false; // Switch back to login form
-        email.value = "";
-        password.value = "";
+  // watch for changes in global auth user to redirect
+  watch(
+    user,
+    newUser => {
+      if (newUser) {
+        router.push('/')
       }
-    } else {
-      await signInWithEmail(email.value, password.value);
-    }
-  } catch (err) {
-    console.error("Email authentication failed from component:", err);
-    // authError will contain the specific error message
-  } finally {
-    isLoading.value = false;
-  }
-};
+    },
+    { immediate: true },
+  )
 
-const clearError = () => {
-  // Clear the error in the composable if it has a method for it
-  // TODO Otherwise, you might need to expose an error clearing method from useAuth
-  if (authError.value) {
-    authError.value = null;
+  const handleGoogleSignIn = async () => {
+    isLoading.value = true
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      // Error is already handled and stored in authError by useAuth composable
+      console.error('Google sign-in failed from component:', error)
+    } finally {
+      isLoading.value = false
+    }
   }
-};
+
+  const handleEmailAuth = async () => {
+    if (!email.value || !password.value) {
+      console.error('Email and password are required')
+      return
+    }
+
+    isLoading.value = true
+    try {
+      if (isRegistering.value) {
+        await signUpWithEmail(email.value, password.value)
+        if (!authError.value) {
+          // If no error, assume success or confirmation email sent
+          alert(
+            'Registration successful! Please check your email to confirm your account.',
+          )
+          isRegistering.value = false // Switch back to login form
+          email.value = ''
+          password.value = ''
+        }
+      } else {
+        await signInWithEmail(email.value, password.value)
+      }
+    } catch (error) {
+      console.error('Email authentication failed from component:', error)
+    // authError will contain the specific error message
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const clearError = () => {
+    // Clear the error in the composable if it has a method for it
+    // TODO Otherwise, you might need to expose an error clearing method from useAuth
+    if (authError.value) {
+      authError.value = null
+    }
+  }
 </script>
 
 <template>
@@ -92,10 +86,10 @@ const clearError = () => {
 
         <v-alert
           v-if="authError"
-          type="error"
-          variant="tonal"
           class="mb-4"
           closable
+          type="error"
+          variant="tonal"
           @click:close="clearError"
         >
           {{ authError.message || authError }}
@@ -105,50 +99,50 @@ const clearError = () => {
           <v-form @submit.prevent="handleEmailAuth">
             <v-text-field
               v-model="email"
-              label="Email"
-              prepend-inner-icon="mdi-email"
-              variant="outlined"
-              type="email"
-              required
               class="mb-4"
               :disabled="isLoading"
+              label="Email"
+              prepend-inner-icon="mdi-email"
+              required
+              type="email"
+              variant="outlined"
             />
 
             <v-text-field
               v-model="password"
-              label="Password"
-              prepend-inner-icon="mdi-lock"
               :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              variant="outlined"
-              :type="showPassword ? 'text' : 'password'"
-              required
               class="mb-4"
               :disabled="isLoading"
+              label="Password"
+              prepend-inner-icon="mdi-lock"
+              required
+              :type="showPassword ? 'text' : 'password'"
+              variant="outlined"
               @click:append-inner="showPassword = !showPassword"
             />
 
             <v-btn
-              type="submit"
-              color="background"
               class="w-100 text-on-background"
-              :loading="isLoading"
+              color="background"
               :disabled="isLoading"
+              :loading="isLoading"
               size="large"
+              type="submit"
               variant="elevated"
             >
               {{ isRegistering ? "Register" : "Login" }}
             </v-btn>
 
-            <v-divider class="my-4"></v-divider>
+            <v-divider class="my-4" />
 
             <v-btn
-              color=""
               class="w-100"
-              :loading="isLoading"
+              color=""
               :disabled="isLoading"
+              :loading="isLoading"
+              prepend-icon="mdi-google"
               size="large"
               variant="outlined"
-              prepend-icon="mdi-google"
               @click="handleGoogleSignIn"
             >
               Sign In with Google
@@ -156,10 +150,10 @@ const clearError = () => {
 
             <div class="mt-4 text-center">
               <v-btn
+                class="text-body-2"
+                :disabled="isLoading"
                 variant="text"
                 @click="isRegistering = !isRegistering"
-                :disabled="isLoading"
-                class="text-body-2"
               >
                 {{
                   isRegistering

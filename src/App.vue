@@ -1,30 +1,30 @@
 <!-- src/App.vue -->
 <script lang="ts" setup>
-import { useAuth } from "@/composables/useAuth";
-import { onMounted } from "vue";
-import { useTheme } from "vuetify";
+  import { onMounted } from 'vue'
+  import { useTheme } from 'vuetify'
+  import { useAuth } from '@/composables/useAuth'
 
-const { initAuth, user, loading: authLoading } = useAuth();
+  const { initAuth, user, loading: authLoading } = useAuth()
 
-const theme = useTheme();
-// const currentTheme = computed(() =>
-//   theme.global.current.value.dark ? "Weather App Theme" : "Light"
-// );
+  const theme = useTheme()
+  // const currentTheme = computed(() =>
+  //   theme.global.current.value.dark ? "Weather App Theme" : "Light"
+  // );
 
-const toggleTheme = () => {
-  theme.global.name.value = theme.global.current.value.dark
-    ? "light"
-    : "weatherAppTheme";
-};
+  const toggleTheme = () => {
+    theme.global.name.value = theme.global.current.value.dark
+      ? 'light'
+      : 'weatherAppTheme'
+  }
 
-onMounted(() => {
-  initAuth();
-});
+  onMounted(() => {
+    initAuth()
+  })
 </script>
 
 <template>
   <v-app>
-    <Navbar :user="user" :loading="authLoading" @toggle-theme="toggleTheme" />
+    <Navbar :loading="authLoading" :user="user" @toggle-theme="toggleTheme" />
     <v-main class="pa-8 mt-16">
       <router-view />
     </v-main>
