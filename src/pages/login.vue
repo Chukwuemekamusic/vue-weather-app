@@ -53,8 +53,6 @@ const handleEmailAuth = async () => {
   try {
     if (isRegistering.value) {
       await signUpWithEmail(email.value, password.value);
-      // Supabase by default requires email confirmation for signup.
-      // You might want to show a message to the user to check their email.
       if (!authError.value) {
         // If no error, assume success or confirmation email sent
         alert(
@@ -77,7 +75,7 @@ const handleEmailAuth = async () => {
 
 const clearError = () => {
   // Clear the error in the composable if it has a method for it
-  // Otherwise, you might need to expose an error clearing method from useAuth
+  // TODO Otherwise, you might need to expose an error clearing method from useAuth
   if (authError.value) {
     authError.value = null;
   }

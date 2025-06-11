@@ -152,8 +152,7 @@ const goToCityDetail = () => {
 
 <style scoped>
 .weather-card {
-  /* Using background property to apply the dynamic gradient */
-  min-width: 280px; /* Adjust as needed */
+  min-width: 280px;
   max-width: 400px;
   width: 100%; /* Make it responsive within its container */
   /* color: white; /* Ensure all text inside the card is white */

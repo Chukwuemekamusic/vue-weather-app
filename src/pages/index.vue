@@ -6,8 +6,8 @@ import {
   type CityCoordinates,
 } from "@/services/weatherService";
 import { useAuth } from "@/composables/useAuth";
-import SearchBar from "@/components/SearchBar.vue"; // Import the new SearchBar component
-import WeatherCard from "@/components/WeatherCard.vue"; // Keep this import
+import SearchBar from "@/components/SearchBar.vue";
+import WeatherCard from "@/components/WeatherCard.vue";
 
 const weatherService = new WeatherService();
 const { user, loading: authLoading } = useAuth();
@@ -48,9 +48,7 @@ watch(
 
 // Handle city added from SearchBar
 const handleCityAdded = async (newCityCoords: CityCoordinates) => {
-  if (!user.value) return; // Should not happen if SearchBar is disabled when no user
-
-  // Optimistic UI update: Temporarily add the city to the display with a loading state
+  if (!user.value) return;
 
   const isAlreadyOptimisticallyAdded = cities.value.some(
     (c: City) => c.id === newCityCoords.id && c.loading
@@ -84,17 +82,17 @@ const handleSearchBarError = (message: string) => {
 // Remove city from display and database
 const removeCity = async (cityId: number) => {
   if (!user.value) {
-    alert("Please log in to remove cities."); // This should be covered by auth guard, but good fallback
+    alert("Please log in to remove cities.");
     return;
   }
 
-  // Optimistic UI update: Remove the city immediately
+  // Optimistic UI update:
   const originalCities = [...cities.value];
   cities.value = cities.value.filter((city: City) => city.id !== cityId);
 
   try {
     await weatherService.removeSavedCity(user.value.id, cityId);
-    // If successful, no need to reload all cities, optimistic update is fine.
+    // If successful, no need to reload all cities
   } catch (err: any) {
     console.error("Failed to remove city:", err);
     error.value = err.message || "Failed to remove city.";

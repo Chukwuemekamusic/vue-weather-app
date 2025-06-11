@@ -14,9 +14,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchBar: typeof import('./components/SearchBar.vue')['default']
     WeatherCard: typeof import('./components/WeatherCard.vue')['default']
-    'WeatherCard copy': typeof import('./components/WeatherCard copy.vue')['default']
     WeatherForm: typeof import('./components/WeatherForm.vue')['default']
     WeatherIcon: typeof import('./components/WeatherIcon.vue')['default']
-    'WeatherIcon copy': typeof import('./components/WeatherIcon copy.vue')['default']
   }
 }

@@ -35,18 +35,10 @@ const existingCityIds = computed(
 
 let searchTimeout: ReturnType<typeof setTimeout>;
 
-// IMPORTANT: Add a watch for searchQuery to see if it updates
-watch(searchQuery, (newVal) => {
-  console.log("SearchBar: searchQuery changed to:", newVal);
-  // This watch is just for debugging. Do not keep in final code unless needed for other logic.
-  // It effectively calls handleSearchInput, but the @update:search event is the primary trigger.
-  // We're keeping handleSearchInput separate to trace the event.
-});
-
 const handleSearchInput = (query: string | null) => {
   // Accept query directly from event
   console.log("SearchBar: handleSearchInput called with query:", query);
-  const currentQuery = query?.trim() || ""; // Use the directly passed query
+  const currentQuery = query?.trim() || "";
 
   clearTimeout(searchTimeout);
 
@@ -172,6 +164,4 @@ const handleAddCity = async (cityToAdd: CityCoordinates) => {
   </div>
 </template>
 
-<style scoped>
-/* Any specific styles for SearchBar.vue if needed */
-</style>
+<style scoped></style>

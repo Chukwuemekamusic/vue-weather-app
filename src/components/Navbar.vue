@@ -11,15 +11,17 @@ interface NavbarProps {
 
 const props = defineProps<NavbarProps>();
 
+const emit = defineEmits<{
+  (e: "toggle-theme"): void;
+}>();
+
 const theme = useTheme();
 const currentTheme = computed(() =>
   theme.global.current.value.dark ? "Weather App Theme" : "Light"
 );
 
 const toggleTheme = () => {
-  theme.global.name.value = theme.global.current.value.dark
-    ? "light"
-    : "weatherAppTheme";
+  emit("toggle-theme");
 };
 
 const { signInWithGoogle, signOut } = useAuth();
@@ -102,8 +104,4 @@ const handleSignOut = async () => {
   </v-app-bar>
 </template>
 
-<style scoped>
-/* .v-app-bar {
-  backdrop-filter: blur(10px);
-} */
-</style>
+<style scoped></style>
