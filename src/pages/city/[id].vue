@@ -13,7 +13,7 @@ const route = useRoute();
 const weatherService = new WeatherService();
 const theme = useTheme();
 
-const cityDetail = ref<City | null>(null); // This will now hold ALL city and weather data
+const cityDetail = ref<City | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -152,7 +152,6 @@ const getDailyCondition = (weatherCode: number, isDay: number) => {
       class="pa-8 elevation-12 rounded-xl text-white mx-auto detail-card"
       :style="cardBackground"
     >
-      <!-- d-flex flex-column flex-sm-row align-center justify-space-between mb-4 text-center text-sm-left -->
       <div class="d-flex align-center align-center justify-space-between mb-4">
         <div class="text-left">
           <h2 class="text-h4 font-weight-bold">
