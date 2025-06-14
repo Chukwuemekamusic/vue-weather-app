@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
 import {
-  WeatherService,
+  type City,
   type CityCoordinates,
+  WeatherService,
 } from "@/services/weatherService";
+import { computed, ref } from "vue";
 import { useAuth } from "@/composables/useAuth";
-import type { City } from "@/services/weatherService";
 
 interface Props {
   disabled: boolean;
@@ -57,9 +57,9 @@ const handleSearchInput = (query: string | null) => {
       const fetchedResults = await weatherService.searchCities(currentQuery);
       console.log("SearchBar: API search results:", fetchedResults);
       searchResults.value = fetchedResults;
-    } catch (err: any) {
-      console.error("SearchBar: API search failed:", err);
-      searchError.value = err.message || "Failed to search for cities.";
+    } catch (error: any) {
+      console.error("SearchBar: API search failed:", error);
+      searchError.value = error.message || "Failed to search for cities.";
       searchResults.value = [];
     } finally {
       searchLoading.value = false;
@@ -89,9 +89,9 @@ const handleAddCity = async (cityToAdd: CityCoordinates) => {
     searchQuery.value = null;
     searchResults.value = [];
     console.log("SearchBar: City added successfully, search cleared.");
-  } catch (err: any) {
-    console.error("SearchBar: Failed to add city:", err);
-    emit("error", err.message || "Failed to add city.");
+  } catch (error: any) {
+    console.error("SearchBar: Failed to add city:", error);
+    emit("error", error.message || "Failed to add city.");
   }
 };
 </script>
@@ -100,51 +100,51 @@ const handleAddCity = async (cityToAdd: CityCoordinates) => {
   <div>
     <v-autocomplete
       v-model="searchQuery"
-      :items="searchResults"
+      class="mb-4"
+      clearable
+      :disabled="props.disabled || !user"
       item-title="name"
       item-value="id"
+      :items="searchResults"
       label="Search for a city to add..."
+      :loading="searchLoading"
       placeholder="e.g., London, Tokyo"
       prepend-inner-icon="mdi-magnify"
       variant="outlined"
-      clearable
-      :loading="searchLoading"
-      :disabled="props.disabled || !user"
-      @update:search="handleSearchInput"
       @keydown.enter="handleSearchInput(searchQuery || '')"
-      class="mb-4"
+      @update:search="handleSearchInput"
     >
-      <template v-slot:item="{ props: itemProps, item }">
+      <template #item="{ props: itemProps, item }">
         <v-list-item
           v-bind="itemProps"
           @click="handleAddCity(item.raw as CityCoordinates)"
         >
           <v-list-item-title>{{ item.title }}</v-list-item-title>
           <v-list-item-subtitle>{{ item.raw.country }}</v-list-item-subtitle>
-          <template v-slot:append>
+          <template #append>
             <v-icon
               v-if="existingCityIds.has(item.raw.id)"
-              color="success"
               class="ml-2"
+              color="success"
               >mdi-check-circle</v-icon
             >
           </template>
         </v-list-item>
       </template>
-      <template v-slot:no-data>
+      <template #no-data>
         <v-list-item>
           <v-list-item-title
             >No results found or start typing...</v-list-item-title
           >
         </v-list-item>
       </template>
-      <template v-slot:append-inner>
+      <template #append-inner>
         <v-progress-circular
           v-if="searchLoading"
+          color="primary"
           indeterminate
           size="24"
           width="2"
-          color="primary"
         />
       </template>
     </v-autocomplete>
@@ -152,11 +152,11 @@ const handleAddCity = async (cityToAdd: CityCoordinates) => {
     <v-row v-if="searchError">
       <v-col cols="12">
         <v-alert
-          type="warning"
-          variant="tonal"
-          :text="searchError"
           class="mb-4"
           closable
+          :text="searchError"
+          type="warning"
+          variant="tonal"
           @click:close="searchError = null"
         />
       </v-col>
