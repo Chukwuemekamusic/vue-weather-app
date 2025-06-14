@@ -11,30 +11,42 @@
   }
 
   interface Emits {
-    remove: []
+    (e: 'remove'): void
+    (e: 'retry-fetch', cityId: number): void
   }
 
   const props = defineProps<WeatherCardProps>()
-  defineEmits<Emits>()
+  const emit = defineEmits<Emits>()
 
   const theme = useTheme()
   const router = useRouter()
+
+  const formatValue = (
+    value: number | string | undefined | null,
+    suffix = '',
+  ) => {
+    // general error
+    if (props.city.error) {
+      return 'N/A'
+    }
+    return value !== undefined && value !== null ? `${value}${suffix}` : 'N/A'
+  }
 
   const additionalDetails = computed(() => [
     {
       icon: 'mdi-thermometer',
       label: 'Feels like',
-      value: `${props.city.feelsLike}°C`,
+      value: formatValue(props.city.feelsLike, '°C'),
     },
     {
       icon: 'mdi-water-percent',
       label: 'Humidity',
-      value: `${props.city.humidity}%`,
+      value: formatValue(props.city.humidity, '%'),
     },
     {
       icon: 'mdi-weather-windy',
-      label: 'wind',
-      value: `${props.city.windSpeed} km/h`,
+      label: 'Wind',
+      value: formatValue(props.city.windSpeed, ' km/h'),
     },
   ])
 
@@ -59,12 +71,17 @@
     const startColor = colors[selectedGradient.start] as string
     const endColor = colors[selectedGradient.end] as string
 
+    if (props.city.error) {
+      // You'll need to define 'error' color in your Vuetify theme's colors if not already.
+      return `linear-gradient(to bottom right, ${colors.error}AA, ${colors.error}55)`
+    }
+
     return `background: linear-gradient(to bottom right, ${startColor}, ${endColor})`
   })
 
   const goToCityDetail = () => {
-    if (props.city.id) {
-      // Ensure city has an ID before navigating
+    if (!props.city.error && props.city.id) {
+      // TODO Ensure city has an ID before navigating
       router.push(`/city/${props.city.id}`)
     }
   }
@@ -88,7 +105,7 @@
       :style="cardClass"
       @click="goToCityDetail"
     >
-      <!-- Remove button  -->
+      <!-- Remove button
       <v-btn
         class="remove-btn"
         icon
@@ -97,53 +114,78 @@
         @click.stop="$emit('remove')"
       >
         <v-icon color="white" size="16">mdi-close</v-icon>
-      </v-btn>
+      </v-btn> -->
 
-      <!-- City Name -->
-      <div class="mb-4 text-left">
-        <h3 class="text-h5 font-weight-bold text-white">
-          {{ props.city.name }}
-        </h3>
-        <p class="text-body-2 text-white text-opacity-80">
-          {{ props.city.country }}
-        </p>
-      </div>
+      <template v-if="props.city.error">
+        <div class="text-center my-4">
+          <v-icon color="error" size="64">mdi-alert-circle-outline</v-icon>
+          <h3 class="text-h5 font-weight-bold mt-2 mb-1">
+            {{ props.city.name }}
+          </h3>
+          <p class="text-body-2 text-white text-opacity-80 mb-4">
+            {{ props.city.country }}
+          </p>
+          <p class="text-body-2 text-red-lighten-2 mb-4">
+            {{ props.city.error || "Weather data unavailable" }}
+          </p>
+          <v-btn
+            color="white"
+            size="small"
+            variant="outlined"
+            @click.stop="emit('retry-fetch', props.city.id)"
+          >
+            <v-icon start>mdi-refresh</v-icon> Refresh
+          </v-btn>
+        </div>
+      </template>
 
-      <!-- Weather icon and temperature -->
-      <div class="d-flex align-center justify-space-between mb-4">
-        <div class="text-left">
-          <div class="text-h4 font-weight-bold text-on-background">
-            {{ props.city.temperature }}°C
+      <template v-else>
+        <!-- City Name -->
+        <div class="mb-4 text-left">
+          <h3 class="text-h5 font-weight-bold text-white">
+            {{ props.city.name }}
+          </h3>
+          <p class="text-body-2 text-white text-opacity-80">
+            {{ props.city.country }}
+          </p>
+        </div>
+
+        <!-- Weather icon and temperature -->
+        <div class="d-flex align-center justify-space-between mb-4">
+          <div class="text-left">
+            <div class="text-h4 font-weight-bold text-on-background">
+              {{ props.city.temperature }}°C
+            </div>
+            <div class="text-body-2 text-white text-opacity-90">
+              {{ props.city.condition }}
+            </div>
           </div>
-          <div class="text-body-2 text-white text-opacity-90">
-            {{ props.city.condition }}
+          <div class="text-right">
+            <WeatherIcon :icon="props.city.icon" :size="48" />
           </div>
         </div>
-        <div class="text-right">
-          <WeatherIcon :icon="props.city.icon" :size="48" />
-        </div>
-      </div>
 
-      <!-- Additional weather details  -->
-      <div class="border-t border-white border-opacity-20 pt-1">
-        <!-- Feels like -->
-        <div
-          v-for="detail in additionalDetails"
-          :key="detail.label"
-          class="d-flex align-center justify-space-between mt-1"
-        >
-          <div class="d-flex align-center">
-            <v-icon class="mr-2" color="white" size="16">{{
-              detail.icon
-            }}</v-icon>
-            <span class="text-body-2 font-weight-medium">
-              {{ detail.label }}</span>
-          </div>
-          <div class="text-body-2 font-weight-medium">
-            {{ detail.value }}
+        <!-- Additional weather details  -->
+        <div class="border-t border-white border-opacity-20 pt-1">
+          <!-- Feels like -->
+          <div
+            v-for="detail in additionalDetails"
+            :key="detail.label"
+            class="d-flex align-center justify-space-between mt-1"
+          >
+            <div class="d-flex align-center">
+              <v-icon class="mr-2" color="white" size="16">{{
+                detail.icon
+              }}</v-icon>
+              <span class="text-body-2 font-weight-medium">
+                {{ detail.label }}</span>
+            </div>
+            <div class="text-body-2 font-weight-medium">
+              {{ detail.value }}
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </v-card>
   </div>
 </template>

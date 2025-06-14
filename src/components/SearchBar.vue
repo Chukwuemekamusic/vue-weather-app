@@ -1,99 +1,99 @@
 <script setup lang="ts">
-import {
-  type City,
-  type CityCoordinates,
-  WeatherService,
-} from "@/services/weatherService";
-import { computed, ref } from "vue";
-import { useAuth } from "@/composables/useAuth";
+  import { computed, ref } from 'vue'
+  import { useAuth } from '@/composables/useAuth'
+  import {
+    type City,
+    type CityCoordinates,
+    WeatherService,
+  } from '@/services/weatherService'
 
-interface Props {
-  disabled: boolean;
-  existingCities: City[];
-}
-
-const props = defineProps<Props>();
-
-interface Emits {
-  (e: "city-added", city: CityCoordinates): void;
-  (e: "error", message: string): void;
-}
-
-const emit = defineEmits<Emits>();
-
-const weatherService = new WeatherService();
-const { user } = useAuth();
-
-const searchQuery = ref<string | null>("");
-const searchResults = ref<CityCoordinates[]>([]);
-const searchLoading = ref(false);
-const searchError = ref<string | null>(null);
-
-const existingCityIds = computed(
-  () => new Set(props.existingCities.map((city) => city.id))
-);
-
-let searchTimeout: ReturnType<typeof setTimeout>;
-
-const handleSearchInput = (query: string | null) => {
-  // Accept query directly from event
-  console.log("SearchBar: handleSearchInput called with query:", query);
-  const currentQuery = query?.trim() || "";
-
-  clearTimeout(searchTimeout);
-
-  if (currentQuery.length < 2) {
-    console.log("SearchBar: Query too short, clearing results.");
-    searchResults.value = [];
-    return;
+  interface Props {
+    disabled: boolean
+    existingCities: City[]
   }
 
-  searchLoading.value = true;
-  searchError.value = null;
+  const props = defineProps<Props>()
 
-  searchTimeout = setTimeout(async () => {
-    console.log("SearchBar: Debounced search initiated for:", currentQuery);
-    try {
-      const fetchedResults = await weatherService.searchCities(currentQuery);
-      console.log("SearchBar: API search results:", fetchedResults);
-      searchResults.value = fetchedResults;
-    } catch (error: any) {
-      console.error("SearchBar: API search failed:", error);
-      searchError.value = error.message || "Failed to search for cities.";
-      searchResults.value = [];
-    } finally {
-      searchLoading.value = false;
-      console.log("SearchBar: Search loading finished.");
+  interface Emits {
+    (e: 'city-added', city: CityCoordinates): void
+    (e: 'error', message: string): void
+  }
+
+  const emit = defineEmits<Emits>()
+
+  const weatherService = new WeatherService()
+  const { user } = useAuth()
+
+  const searchQuery = ref<string | null>('')
+  const searchResults = ref<CityCoordinates[]>([])
+  const searchLoading = ref(false)
+  const searchError = ref<string | null>(null)
+
+  const existingCityIds = computed(
+    () => new Set(props.existingCities.map(city => city.id)),
+  )
+
+  let searchTimeout: ReturnType<typeof setTimeout>
+
+  const handleSearchInput = (query: string | null) => {
+    // Accept query directly from event
+    console.log('SearchBar: handleSearchInput called with query:', query)
+    const currentQuery = query?.trim() || ''
+
+    clearTimeout(searchTimeout)
+
+    if (currentQuery.length < 2) {
+      console.log('SearchBar: Query too short, clearing results.')
+      searchResults.value = []
+      return
     }
-  }, 300);
-};
 
-const handleAddCity = async (cityToAdd: CityCoordinates) => {
-  console.log("SearchBar: handleAddCity called for:", cityToAdd.name);
-  if (!user.value) {
-    emit("error", "Please log in to save cities.");
-    return;
+    searchLoading.value = true
+    searchError.value = null
+
+    searchTimeout = setTimeout(async () => {
+      console.log('SearchBar: Debounced search initiated for:', currentQuery)
+      try {
+        const fetchedResults = await weatherService.searchCities(currentQuery)
+        console.log('SearchBar: API search results:', fetchedResults)
+        searchResults.value = fetchedResults
+      } catch (error: any) {
+        console.error('SearchBar: API search failed:', error)
+        searchError.value = error.message || 'Failed to search for cities.'
+        searchResults.value = []
+      } finally {
+        searchLoading.value = false
+        console.log('SearchBar: Search loading finished.')
+      }
+    }, 300)
   }
 
-  if (existingCityIds.value.has(cityToAdd.id)) {
-    emit("error", `${cityToAdd.name} is already in your list.`);
-    searchQuery.value = null;
-    searchResults.value = [];
-    return;
-  }
+  const handleAddCity = async (cityToAdd: CityCoordinates) => {
+    console.log('SearchBar: handleAddCity called for:', cityToAdd.name)
+    if (!user.value) {
+      emit('error', 'Please log in to save cities.')
+      return
+    }
 
-  try {
-    await weatherService.addSavedCity(user.value.id, cityToAdd.id);
-    emit("city-added", cityToAdd);
+    if (existingCityIds.value.has(cityToAdd.id)) {
+      emit('error', `${cityToAdd.name} is already in your list.`)
+      searchQuery.value = null
+      searchResults.value = []
+      return
+    }
 
-    searchQuery.value = null;
-    searchResults.value = [];
-    console.log("SearchBar: City added successfully, search cleared.");
-  } catch (error: any) {
-    console.error("SearchBar: Failed to add city:", error);
-    emit("error", error.message || "Failed to add city.");
+    try {
+      await weatherService.addSavedCity(user.value.id, cityToAdd.id)
+      emit('city-added', cityToAdd)
+
+      searchQuery.value = null
+      searchResults.value = []
+      console.log('SearchBar: City added successfully, search cleared.')
+    } catch (error: any) {
+      console.error('SearchBar: Failed to add city:', error)
+      emit('error', error.message || 'Failed to add city.')
+    }
   }
-};
 </script>
 
 <template>
@@ -126,16 +126,13 @@ const handleAddCity = async (cityToAdd: CityCoordinates) => {
               v-if="existingCityIds.has(item.raw.id)"
               class="ml-2"
               color="success"
-              >mdi-check-circle</v-icon
-            >
+            >mdi-check-circle</v-icon>
           </template>
         </v-list-item>
       </template>
       <template #no-data>
         <v-list-item>
-          <v-list-item-title
-            >No results found or start typing...</v-list-item-title
-          >
+          <v-list-item-title>No results found or start typing...</v-list-item-title>
         </v-list-item>
       </template>
       <template #append-inner>

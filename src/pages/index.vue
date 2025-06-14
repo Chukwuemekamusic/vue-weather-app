@@ -1,13 +1,8 @@
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue'
-  import SearchBar from '@/components/SearchBar.vue'
   import WeatherCard from '@/components/WeatherCard.vue'
   import { useAuth } from '@/composables/useAuth'
-  import {
-    type City,
-    type CityCoordinates,
-    WeatherService,
-  } from '@/services/weatherService'
+  import { type City, WeatherService } from '@/services/weatherService'
 
   const weatherService = new WeatherService()
   const { user, loading: authLoading } = useAuth()
@@ -16,100 +11,77 @@
   const weatherLoading = ref(false)
   const error = ref<string | null>(null) // Global error for weather fetching or city operations
 
-  // Function to load weather data for the current user's saved cities
-  const loadWeatherData = async (userId: string) => {
+  const searchQuery = ref<string>('')
+
+  const loadAllCitiesWeatherData = async () => {
     weatherLoading.value = true
     error.value = null // Clear general errors
 
     try {
-      const fetchedCities = await weatherService.getSavedCitiesWeather(userId)
+      const fetchedCities = await weatherService.getAllDbCitiesWeather()
       cities.value = fetchedCities
     } catch (error_: any) {
-      console.error('Failed to load user\'s weather data:', error_)
-      error.value = error_.message || 'Failed to load weather data.'
+      console.error('Failed to load all cities weather data:', error_)
+      error.value = error_.message || 'Failed to load all weather data.'
       cities.value = [] // Clear list if there's a global error fetching all
     } finally {
       weatherLoading.value = false
     }
   }
 
+  // Handle retry for a single city's weather data
+  const handleRetryFetch = async (cityId: number) => {
+    const cityIndex = cities.value.findIndex(city => city.id === cityId)
+    if (cityIndex === -1) {
+      console.warn(`City with ID ${cityId} not found for retry.`)
+      return
+    }
+
+    // Set individual city to loading state
+    cities.value[cityIndex].loading = true
+    cities.value[cityIndex].error = null // Clear previous error
+    console.log(`Attempting to re-fetch weather for city ID: ${cityId}`)
+
+    try {
+      const updatedCity = await weatherService.getCityWeather(cityId) // Use getCityWeather for single city
+      if (updatedCity) {
+        cities.value[cityIndex] = updatedCity // Replace with updated data
+      } else {
+        // If getCityWeather returns null (city not found), mark as an error again
+        cities.value[cityIndex].error = 'City data could not be retrieved.'
+        cities.value[cityIndex].loading = false
+      }
+    } catch (error_: any) {
+      console.error(`Failed to re-fetch weather for city ID ${cityId}:`, error_)
+      cities.value[cityIndex].error = error_.message || 'Failed to refresh data.'
+      cities.value[cityIndex].loading = false
+    }
+  }
+
   // Watch for user changes and load weather data
   watch(
-    user,
-    async newUser => {
-      if (newUser) {
-        await loadWeatherData(newUser.id)
-      } else {
-        cities.value = [] // Clear cities if user logs out
+    [user, authLoading],
+    async ([newUser, newAuthLoading], [oldUser, oldAuthLoading]) => {
+      if (!newAuthLoading && (newUser !== oldUser || oldAuthLoading)) {
+        await loadAllCitiesWeatherData()
       }
     },
     { immediate: true },
   )
 
-  // Handle city added from SearchBar
-  const handleCityAdded = async (newCityCoords: CityCoordinates) => {
-    if (!user.value) return
+  // Computed property to filter cities based on searchQuery
+  const filteredCities = computed(() => {
+    if (!searchQuery.value) {
+      return cities.value // If search query is empty, return all cities
+    }
 
-    const isAlreadyOptimisticallyAdded = cities.value.some(
-      (c: City) => c.id === newCityCoords.id && c.loading,
+    const query = searchQuery.value.toLowerCase()
+    return cities.value.filter(
+      city =>
+        city.name.toLowerCase().includes(query)
+        || city.country.toLowerCase().includes(query),
     )
-    if (!isAlreadyOptimisticallyAdded) {
-      cities.value.unshift({
-        id: newCityCoords.id,
-        name: newCityCoords.name,
-        country: newCityCoords.country,
-        temperature: 0,
-        condition: 'Adding...',
-        humidity: 0,
-        windSpeed: 0,
-        feelsLike: 0,
-        icon: 'mdi-cloud-sync-outline',
-        weatherType: 'default',
-        loading: true,
-        error: null,
-      })
-    }
-
-    // Then trigger a full reload to get the fresh data and remove loading state
-    await loadWeatherData(user.value.id)
-  }
-
-  // Handle error emitted from SearchBar
-  const handleSearchBarError = (message: string) => {
-    error.value = message
-  }
-
-  // Remove city from display and database
-  const removeCity = async (cityId: number) => {
-    if (!user.value) {
-      alert('Please log in to remove cities.')
-      return
-    }
-
-    // Optimistic UI update:
-    const originalCities = [...cities.value]
-    cities.value = cities.value.filter((city: City) => city.id !== cityId)
-
-    try {
-      await weatherService.removeSavedCity(user.value.id, cityId)
-    // If successful, no need to reload all cities
-    } catch (error_: any) {
-      console.error('Failed to remove city:', error_)
-      error.value = error_.message || 'Failed to remove city.'
-      // Revert if API call fails
-      cities.value = originalCities
-    }
-  }
-
-  // Refresh weather data (for currently saved cities)
-  const refreshWeather = async () => {
-    if (user.value) {
-      await loadWeatherData(user.value.id)
-    } else {
-      // This case should be covered by the "Not Authenticated" block
-      alert('Please log in to refresh weather data.')
-    }
-  }
+  })
 
   // Determine overall loading state (auth or weather data)
   const overallLoading = computed(
@@ -121,15 +93,30 @@
   <div class="container mx-auto p-4 d-flex flex-column text-center">
     <h1 class="text-on-background">Weather App Dashboard</h1>
     <p class="mb-4 text-body-1 text-on-background">
-      Track weather conditions across multiple cities
+      View current weather conditions for various cities around the world
     </p>
-
-    <SearchBar
-      :disabled="overallLoading"
-      :existing-cities="cities"
-      @city-added="handleCityAdded"
-      @error="handleSearchBarError"
+    <v-text-field
+      v-model="searchQuery"
+      class="mb-6"
+      clearable
+      :disabled="overallLoading || (cities.length === 0 && !searchQuery)"
+      label="Filter cities by name or country"
+      prepend-inner-icon="mdi-filter"
+      variant="outlined"
     />
+
+    <v-row v-if="error">
+      <v-col cols="12">
+        <v-alert
+          class="mb-4"
+          closable
+          :text="error"
+          type="error"
+          variant="tonal"
+          @click:close="error = null"
+        />
+      </v-col>
+    </v-row>
 
     <v-row v-if="error">
       <v-col cols="12">
@@ -156,6 +143,38 @@
       </v-col>
     </v-row>
 
+    <div
+      v-else-if="cities.length === 0 && !searchQuery"
+      class="text-center text-on-background"
+    >
+      <p class="text-h6 text-medium-emphasis">
+        No cities available in the database.
+      </p>
+      <p class="text-body-1 text-medium-emphasis">
+        (You might need to add cities to your Supabase `public.cities` table).
+      </p>
+      <v-btn
+        class="mt-4"
+        color="primary"
+        variant="elevated"
+        @click="loadAllCitiesWeatherData"
+      >
+        <v-icon start>mdi-refresh</v-icon> Reload All
+      </v-btn>
+    </div>
+
+    <div
+      v-else-if="filteredCities.length === 0 && searchQuery"
+      class="text-center text-on-background"
+    >
+      <p class="text-h6 text-medium-emphasis">
+        No cities match "{{ searchQuery }}".
+      </p>
+      <p class="text-body-1 text-medium-emphasis">
+        Try a different filter or clear the search.
+      </p>
+    </div>
+
     <div v-else-if="!user" class="text-center text-on-background">
       <p class="text-h6 text-medium-emphasis">
         Please log in to see your saved cities and manage them.
@@ -170,25 +189,10 @@
       </v-btn>
     </div>
 
-    <div
-      v-else-if="cities.length === 0 && !overallLoading"
-      class="text-center text-on-background"
-    >
-      <p class="text-h6 text-medium-emphasis">
-        No cities added yet. Use the search bar to find and add your first city!
-      </p>
-      <v-btn
-        class="mt-4"
-        color="primary"
-        variant="elevated"
-        @click="refreshWeather"
-      >Refresh</v-btn>
-    </div>
-
     <div v-else class="d-flex flex-wrap">
       <v-row>
         <v-col
-          v-for="city in cities"
+          v-for="city in filteredCities"
           :key="city.id"
           cols="12"
           lg="3"
@@ -198,7 +202,7 @@
           <WeatherCard
             :city="city"
             class="mx-auto"
-            @remove="removeCity(city.id)"
+            @retry-fetch="handleRetryFetch"
           />
         </v-col>
       </v-row>
