@@ -1,79 +1,79 @@
 <script setup lang="ts">
-  import { ref, watch } from 'vue'
-  import { useRouter } from 'vue-router'
-  import { useAuth } from '@/composables/useAuth'
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
 
-  const router = useRouter()
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, user, authError }
-    = useAuth()
+const router = useRouter();
+const { signInWithGoogle, signInWithEmail, signUpWithEmail, user, authError } =
+  useAuth();
 
-  const email = ref('')
-  const password = ref('')
-  const isRegistering = ref(false)
-  const showPassword = ref(false)
+const email = ref("");
+const password = ref("");
+const isRegistering = ref(false);
+const showPassword = ref(false);
 
-  const isLoading = ref(false)
+const isLoading = ref(false);
 
-  // watch for changes in global auth user to redirect
-  watch(
-    user,
-    newUser => {
-      if (newUser) {
-        router.push('/')
-      }
-    },
-    { immediate: true },
-  )
-
-  const handleGoogleSignIn = async () => {
-    isLoading.value = true
-    try {
-      await signInWithGoogle()
-    } catch (error) {
-      // Error is already handled and stored in authError by useAuth composable
-      console.error('Google sign-in failed from component:', error)
-    } finally {
-      isLoading.value = false
+// watch for changes in global auth user to redirect
+watch(
+  user,
+  (newUser) => {
+    if (newUser) {
+      router.push("/");
     }
+  },
+  { immediate: true }
+);
+
+const handleGoogleSignIn = async () => {
+  isLoading.value = true;
+  try {
+    await signInWithGoogle();
+  } catch (error) {
+    // Error is already handled and stored in authError by useAuth composable
+    console.error("Google sign-in failed from component:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleEmailAuth = async () => {
+  if (!email.value || !password.value) {
+    console.error("Email and password are required");
+    return;
   }
 
-  const handleEmailAuth = async () => {
-    if (!email.value || !password.value) {
-      console.error('Email and password are required')
-      return
-    }
-
-    isLoading.value = true
-    try {
-      if (isRegistering.value) {
-        await signUpWithEmail(email.value, password.value)
-        if (!authError.value) {
-          // If no error, assume success or confirmation email sent
-          alert(
-            'Registration successful! Please check your email to confirm your account.',
-          )
-          isRegistering.value = false // Switch back to login form
-          email.value = ''
-          password.value = ''
-        }
-      } else {
-        await signInWithEmail(email.value, password.value)
+  isLoading.value = true;
+  try {
+    if (isRegistering.value) {
+      await signUpWithEmail(email.value, password.value);
+      if (!authError.value) {
+        // If no error, assume success or confirmation email sent
+        alert(
+          "Registration successful! Please check your email to confirm your account."
+        );
+        isRegistering.value = false; // Switch back to login form
+        email.value = "";
+        password.value = "";
       }
-    } catch (error) {
-      console.error('Email authentication failed from component:', error)
+    } else {
+      await signInWithEmail(email.value, password.value);
+    }
+  } catch (error) {
+    console.error("Email authentication failed from component:", error);
     // authError will contain the specific error message
-    } finally {
-      isLoading.value = false
-    }
+  } finally {
+    isLoading.value = false;
   }
+};
 
-  const clearError = () => {
-    // Clear the error in the composable if it has a method for it
-    // TODO Otherwise, you might need to expose an error clearing method from useAuth
-    if (authError.value) {
-      authError.value = null
-    }
+const clearError = () => {
+  // Clear the error in the composable if it has a method for it
+  // TODO Otherwise, you might need to expose an error clearing method from useAuth
+  if (authError.value) {
+    authError.value = null;
   }
+};
 </script>
 
 <template>
@@ -137,15 +137,16 @@
 
             <v-btn
               class="w-100"
-              color=""
+              color="primary"
               :disabled="isLoading"
               :loading="isLoading"
               prepend-icon="mdi-google"
-              size="large"
+              :size="$vuetify.display.smAndDown ? 'default' : 'large'"
               variant="outlined"
               @click="handleGoogleSignIn"
             >
-              Sign In with Google
+              <span class="d-none d-sm-block">Sign In with Google</span>
+              <span class="d-sm-none">Sign In</span>
             </v-btn>
 
             <div class="mt-4 text-center">

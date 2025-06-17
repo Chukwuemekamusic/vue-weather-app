@@ -1,90 +1,90 @@
 <!-- src/components/WeatherCard.vue -->
 <script setup lang="ts">
-  import type { City } from '@/services/weatherService'
-  import { computed } from 'vue'
-  import { useRouter } from 'vue-router'
-  import { useTheme } from 'vuetify'
-  import WeatherIcon from '@/components/WeatherIcon.vue'
+import type { City } from "@/services/weatherService";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { useTheme } from "vuetify";
+import WeatherIcon from "@/components/WeatherIcon.vue";
 
-  interface WeatherCardProps {
-    city: City
+interface WeatherCardProps {
+  city: City;
+}
+
+interface Emits {
+  (e: "remove"): void;
+  (e: "retry-fetch", cityId: number): void;
+}
+
+const props = defineProps<WeatherCardProps>();
+const emit = defineEmits<Emits>();
+
+const theme = useTheme();
+const router = useRouter();
+
+const formatValue = (
+  value: number | string | undefined | null,
+  suffix = ""
+) => {
+  // general error
+  if (props.city.error) {
+    return "N/A";
+  }
+  return value !== undefined && value !== null ? `${value}${suffix}` : "N/A";
+};
+
+const additionalDetails = computed(() => [
+  {
+    icon: "mdi-thermometer",
+    label: "Feels like",
+    value: formatValue(props.city.feelsLike, "°C"),
+  },
+  {
+    icon: "mdi-water-percent",
+    label: "Humidity",
+    value: formatValue(props.city.humidity, "%"),
+  },
+  {
+    icon: "mdi-weather-windy",
+    label: "Wind",
+    value: formatValue(props.city.windSpeed, " km/h"),
+  },
+]);
+
+const cardClass = computed(() => {
+  const weatherType = props.city.weatherType; // Directly use the weatherType from the prop
+  const colors = theme.global.current.value.colors;
+
+  // Define a mapping from weatherType to the theme color names (start and end for gradients)
+  const gradientColorMap: Record<string, { start: string; end: string }> = {
+    sunny: { start: "weatherSunnyStart", end: "weatherSunnyEnd" },
+    cloudy: { start: "weatherCloudyStart", end: "weatherCloudyEnd" },
+    rainy: { start: "weatherRainyStart", end: "weatherRainyEnd" },
+    snowy: { start: "weatherSnowyStart", end: "weatherSnowyEnd" },
+    stormy: { start: "weatherStormyStart", end: "weatherStormyEnd" },
+    default: { start: "weatherDefaultStart", end: "weatherDefaultEnd" }, // Fallback
+  };
+
+  // Get the selected gradient color names, falling back to 'default' if weatherType is not found
+  const selectedGradient =
+    gradientColorMap[weatherType] || gradientColorMap.default;
+
+  const startColor = colors[selectedGradient.start] as string;
+  const endColor = colors[selectedGradient.end] as string;
+
+  if (props.city.error) {
+    // You'll need to define 'error' color in your Vuetify theme's colors if not already.
+    return `linear-gradient(to bottom right, ${colors.error}AA, ${colors.error}55)`;
   }
 
-  interface Emits {
-    (e: 'remove'): void
-    (e: 'retry-fetch', cityId: number): void
+  return `background: linear-gradient(to bottom right, ${startColor}, ${endColor})`;
+});
+
+const goToCityDetail = () => {
+  if (!props.city.error && props.city.id) {
+    // TODO Ensure city has an ID before navigating
+    router.push(`/city/${props.city.id}`);
   }
-
-  const props = defineProps<WeatherCardProps>()
-  const emit = defineEmits<Emits>()
-
-  const theme = useTheme()
-  const router = useRouter()
-
-  const formatValue = (
-    value: number | string | undefined | null,
-    suffix = '',
-  ) => {
-    // general error
-    if (props.city.error) {
-      return 'N/A'
-    }
-    return value !== undefined && value !== null ? `${value}${suffix}` : 'N/A'
-  }
-
-  const additionalDetails = computed(() => [
-    {
-      icon: 'mdi-thermometer',
-      label: 'Feels like',
-      value: formatValue(props.city.feelsLike, '°C'),
-    },
-    {
-      icon: 'mdi-water-percent',
-      label: 'Humidity',
-      value: formatValue(props.city.humidity, '%'),
-    },
-    {
-      icon: 'mdi-weather-windy',
-      label: 'Wind',
-      value: formatValue(props.city.windSpeed, ' km/h'),
-    },
-  ])
-
-  const cardClass = computed(() => {
-    const weatherType = props.city.weatherType // Directly use the weatherType from the prop
-    const colors = theme.global.current.value.colors
-
-    // Define a mapping from weatherType to the theme color names (start and end for gradients)
-    const gradientColorMap: Record<string, { start: string, end: string }> = {
-      sunny: { start: 'weatherSunnyStart', end: 'weatherSunnyEnd' },
-      cloudy: { start: 'weatherCloudyStart', end: 'weatherCloudyEnd' },
-      rainy: { start: 'weatherRainyStart', end: 'weatherRainyEnd' },
-      snowy: { start: 'weatherSnowyStart', end: 'weatherSnowyEnd' },
-      stormy: { start: 'weatherStormyStart', end: 'weatherStormyEnd' },
-      default: { start: 'weatherDefaultStart', end: 'weatherDefaultEnd' }, // Fallback
-    }
-
-    // Get the selected gradient color names, falling back to 'default' if weatherType is not found
-    const selectedGradient
-      = gradientColorMap[weatherType] || gradientColorMap.default
-
-    const startColor = colors[selectedGradient.start] as string
-    const endColor = colors[selectedGradient.end] as string
-
-    if (props.city.error) {
-      // You'll need to define 'error' color in your Vuetify theme's colors if not already.
-      return `linear-gradient(to bottom right, ${colors.error}AA, ${colors.error}55)`
-    }
-
-    return `background: linear-gradient(to bottom right, ${startColor}, ${endColor})`
-  })
-
-  const goToCityDetail = () => {
-    if (!props.city.error && props.city.id) {
-      // TODO Ensure city has an ID before navigating
-      router.push(`/city/${props.city.id}`)
-    }
-  }
+};
 </script>
 
 <template>
@@ -139,7 +139,7 @@
 
       <template v-else>
         <!-- City Name -->
-        <div class="mb-4 text-left">
+        <div class="mb-4 text-left text-white background">
           <h3 class="text-h5 font-weight-bold">
             {{ props.city.name }}
           </h3>
@@ -149,7 +149,7 @@
         </div>
 
         <!-- Weather icon and temperature -->
-        <div class="d-flex align-center justify-space-between mb-4">
+        <div class="d-flex align-center justify-space-between mb-4 text-white">
           <div class="text-left">
             <div class="text-h4 font-weight-bold text-on-background">
               {{ props.city.temperature }}°C
@@ -176,7 +176,8 @@
                 detail.icon
               }}</v-icon>
               <span class="text-body-2 font-weight-medium">
-                {{ detail.label }}</span>
+                {{ detail.label }}</span
+              >
             </div>
             <div class="text-body-2 font-weight-medium">
               {{ detail.value }}
