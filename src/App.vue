@@ -3,21 +3,24 @@
 import { onMounted } from "vue";
 import { useTheme } from "vuetify";
 import { useAuth } from "@/composables/useAuth";
+import { useThemePersistence } from "@/composables/useThemePersistence";
 
 const { initAuth, user, loading: authLoading } = useAuth();
+const { theme, toggleTheme, initializeTheme } = useThemePersistence();
 
-const theme = useTheme();
-// const currentTheme = computed(() =>
-//   theme.global.current.value.dark ? "Weather App Theme" : "Light"
-// );
+// const theme = useTheme();
+// // const currentTheme = computed(() =>
+// //   theme.global.current.value.dark ? "Weather App Theme" : "Light"
+// // );
 
-const toggleTheme = () => {
-  theme.global.name.value = theme.global.current.value.dark
-    ? "weatherAppLightTheme"
-    : "weatherAppTheme";
-};
+// const toggleTheme = () => {
+//   theme.global.name.value = theme.global.current.value.dark
+//     ? "weatherAppLightTheme"
+//     : "weatherAppTheme";
+// };
 
 onMounted(() => {
+  initializeTheme();
   initAuth();
 });
 </script>

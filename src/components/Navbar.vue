@@ -3,6 +3,9 @@ import type { User } from "@supabase/supabase-js";
 import { computed } from "vue";
 import { useTheme } from "vuetify";
 import { useAuth } from "@/composables/useAuth";
+import { useThemePersistence } from "@/composables/useThemePersistence";
+
+const { currentTheme } = useThemePersistence();
 
 interface NavbarProps {
   user: User | null;
@@ -15,12 +18,12 @@ const emit = defineEmits<{
   (e: "toggle-theme"): void;
 }>();
 
-const theme = useTheme();
-const currentTheme = computed(() =>
-  theme.global.current.value.dark
-    ? "Weather App Theme"
-    : "Weather App Light Theme"
-);
+// const theme = useTheme();
+// const currentTheme = computed(() =>
+//   theme.global.current.value.dark
+//     ? "Weather App Theme"
+//     : "Weather App Light Theme"
+// );
 
 const toggleTheme = () => {
   emit("toggle-theme");
@@ -56,13 +59,17 @@ const handleSignOut = async () => {
       class="mr-2"
       icon
       :title="`Switch to ${
-        currentTheme === 'Light' ? 'Weather App Theme' : 'Light'
+        currentTheme === 'Weather App Light Theme'
+          ? 'Weather App Theme'
+          : 'Weather App Light Theme'
       } theme`"
       @click="toggleTheme"
     >
       <v-icon>
         {{
-          currentTheme === "Light" ? "mdi-weather-night" : "mdi-weather-sunny"
+          currentTheme === "Weather App Light Theme"
+            ? "mdi-weather-night"
+            : "mdi-weather-sunny"
         }}
       </v-icon>
     </v-btn>
