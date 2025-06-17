@@ -19,34 +19,46 @@ export default createVuetify({
       weatherAppTheme: {
         dark: true,
         colors: {
+          // Using Vuetify's default dark theme colors
+          background: "#121212", // Vuetify's default dark background
+          "on-background": "#FFFFFF", // White text on dark background
+          surface: "#1E1E1E", // Vuetify's default dark surface
+          "on-surface": "#FFFFFF", // White text on surface
+
           // --- Weather Card Specific Gradient Colors ---
           // Sunny/Clear
-          weatherSunnyStart: "#FDB813",
-          weatherSunnyEnd: "#FF7F50",
+          weatherSunnyStart: "#FDB813", // From Figma: sunny-gradient for sunny days card (70%)
+          weatherSunnyEnd: "#FF7F50", // From Figma: sunny-gradient for sunny days card (30%)
 
           // Cloudy/Overcast (Tailwind equivalents)
-          weatherCloudyStart: "#A0AEC0",
-          weatherCloudyEnd: "#718096",
+          weatherCloudyStart: "#A0AEC0", // gray-400
+          weatherCloudyEnd: "#718096", // gray-600
 
           // Rainy/Rain (Tailwind equivalents)
-          weatherRainyStart: "#6DA4BB",
-          weatherRainyEnd: "#336B87",
+          weatherRainyStart: "#6DA4BB", // blue-500
+          weatherRainyEnd: "#336B87", // blue-700
 
           // Snowy/Snow (Tailwind equivalents)
-          weatherSnowyStart: "#93C5FD",
-          weatherSnowyEnd: "#60A5FA",
+          weatherSnowyStart: "#93C5FD", // blue-200
+          weatherSnowyEnd: "#60A5FA", // blue-400
 
           // Default (Tailwind equivalents)
-          weatherDefaultStart: "#60A5FA",
-          weatherDefaultEnd: "#2563EB",
+          weatherDefaultStart: "#60A5FA", // blue-400
+          weatherDefaultEnd: "#2563EB", // blue-600
 
-          // Specific solid color for cloudy cards (if you want it as a solid, not gradient)
+          // Specific solid color for cloudy cards
           grayWeatherCool: "#9E9E9E",
         },
       },
       weatherAppLightTheme: {
         dark: false,
         colors: {
+          // Using Vuetify's default light theme colors
+          background: "#FFFFFF", // Vuetify's default light background
+          "on-background": "#000000", // Black text on light background
+          surface: "#F5F5F5", // Vuetify's default light surface
+          "on-surface": "#000000", // Black text on surface
+
           // --- Weather Card Specific Gradient Colors ---
           // Sunny/Clear
           weatherSunnyStart: "#FDB813", // From Figma: sunny-gradient for sunny days card (70%)
