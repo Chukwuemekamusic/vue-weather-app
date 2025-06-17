@@ -1,48 +1,50 @@
 <script setup lang="ts">
-  import type { User } from '@supabase/supabase-js'
-  import { computed } from 'vue'
-  import { useTheme } from 'vuetify'
-  import { useAuth } from '@/composables/useAuth'
+import type { User } from "@supabase/supabase-js";
+import { computed } from "vue";
+import { useTheme } from "vuetify";
+import { useAuth } from "@/composables/useAuth";
 
-  interface NavbarProps {
-    user: User | null
-    loading: boolean
+interface NavbarProps {
+  user: User | null;
+  loading: boolean;
+}
+
+defineProps<NavbarProps>();
+
+const emit = defineEmits<{
+  (e: "toggle-theme"): void;
+}>();
+
+const theme = useTheme();
+const currentTheme = computed(() =>
+  theme.global.current.value.dark
+    ? "Weather App Theme"
+    : "Weather App Light Theme"
+);
+
+const toggleTheme = () => {
+  emit("toggle-theme");
+};
+
+const { signInWithGoogle, signOut } = useAuth();
+
+const handleSignIn = async () => {
+  try {
+    await signInWithGoogle();
+  } catch (error) {
+    // TODO: HANDLE ERROR
+    console.error("login failed", error);
   }
+};
 
-  defineProps<NavbarProps>()
-
-  const emit = defineEmits<{
-    (e: 'toggle-theme'): void
-  }>()
-
-  const theme = useTheme()
-  const currentTheme = computed(() =>
-    theme.global.current.value.dark ? 'Weather App Theme' : 'Light',
-  )
-
-  const toggleTheme = () => {
-    emit('toggle-theme')
+const handleSignOut = async () => {
+  try {
+    await signOut();
+  } catch (error) {
+    // Handle error
+    console.error("Logout failed:", error);
   }
-
-  const { signInWithGoogle, signOut } = useAuth()
-
-  const handleSignIn = async () => {
-    try {
-      await signInWithGoogle()
-    } catch (error) {
-      // TODO: HANDLE ERROR
-      console.error('login failed', error)
-    }
-  }
-
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-    } catch (error) {
-      // Handle error
-      console.error('Logout failed:', error)
-    }
-  }
+};
 </script>
 
 <template>
