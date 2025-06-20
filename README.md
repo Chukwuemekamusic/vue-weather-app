@@ -7,21 +7,26 @@ A dynamic and interactive weather application built with Vue 3, Vuetify 3, TypeS
 - **User Authentication:** Secure user login and registration using:
   - Email and Password
   - Google OAuth
-- **Persistent User Data:**
+- **Persistent User Data & Preferences:**
   - Users can save their preferred cities, which persist across sessions via Supabase database integration.
-  - Recently added cities are displayed first on the dashboard.
+  - **Theme Preference:** The user's selected light or dark theme is persisted across sessions using `localStorage`.
 - **Dynamic Weather Display:**
-  - Dashboard view shows current weather conditions for all saved cities using a visually appealing card layout.
+  - **Main Dashboard:** Displays current weather conditions for **all available cities** from the database using a visually appealing card layout.
   - Weather cards feature dynamic gradient backgrounds and Material Design Icons based on weather conditions (sunny, cloudy, rainy, snowy, stormy).
+  - **Robust Error Handling:** Individual weather cards gracefully display "Data Unavailable" messages and provide a "Refresh" option if weather data fails to load for a specific city.
 - **City Search & Management:**
-  - Search for cities globally using an autocomplete search bar.
-  - Add new cities to your personal dashboard.
-  - Remove cities from your saved list.
+  - **Client-Side City Filtering:** A search bar on the main dashboard allows users to quickly filter and find cities that are already displayed by name or country.
+  - Users can still add new cities to their _personal saved list_ and remove them, leveraging Supabase for data persistence (though the primary UI for adding new cities from an external API might be on a separate page or a later iteration).
 - **Detailed City Weather View:**
-  - Click on any weather card to navigate to a dedicated detail page for a specific city.vue`].
-  - The detail page displays current weather conditions and a 7-day forecast.vue`, `WeatherService.ts`].
-- **Responsive UI:** Built with Vuetify 3 for a modern and adaptive user interface across different devices.
+  - Clicking on any weather card navigates to a dedicated detail page for that specific city.
+  - The detail page displays current weather conditions and a 7-day forecast.
+- **Optimized Data Fetching:**
+  - **Client-Side Weather Data Caching:** Fetched weather data is cached for at least one hour to reduce redundant API calls and improve performance.
+- **Responsive UI:**
+  - Built with Vuetify 3 for a modern and adaptive user interface across different devices.
+  - **Dynamic Button Sizing:** Key action buttons (e.g., "Sign In with Google") dynamically adjust their text content based on screen size for improved readability on mobile devices.
 - **TypeScript:** Ensures type safety and improves code maintainability.
+- **Smart Routing:** Authentication guards (`router.beforeResolve`) ensure correct redirection behavior, waiting for asynchronous authentication state to resolve before allowing navigation, preventing erroneous redirects on page refresh.
 
 ## Technologies Used
 
@@ -80,8 +85,8 @@ A dynamic and interactive weather application built with Vue 3, Vuetify 3, TypeS
       ```
     - To stop the containers:
       `bash
-    docker compose down
-    `
+docker compose down
+`
       The app will be accessible in your browser at `http://localhost:3000`.
 
 5.  **Run the development server:**
