@@ -48,6 +48,10 @@ export default createVuetify({
           weatherSnowyStart: "#93C5FD",
           weatherSnowyEnd: "#60A5FA",
 
+          // Stormy (New)
+          weatherStormyStart: "#434343", // dark gray
+          weatherStormyEnd: "#232526", // almost black
+
           // Default (Tailwind equivalents)
           weatherDefaultStart: "#60A5FA",
           weatherDefaultEnd: "#2563EB",
@@ -82,6 +86,10 @@ export default createVuetify({
           // Snowy/Snow (Tailwind equivalents)
           weatherSnowyStart: "#93C5FD", // blue-200
           weatherSnowyEnd: "#60A5FA", // blue-400
+
+          // Stormy (New)
+          weatherStormyStart: "#757F9A", // muted blue-gray
+          weatherStormyEnd: "#d7dde8", // pale gray-blue
 
           // Default (Tailwind equivalents)
           weatherDefaultStart: "#60A5FA", // blue-400
